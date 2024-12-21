@@ -1,0 +1,5 @@
+streamlit
+pyzxing
+pillow
+isbnlib
+pandas
