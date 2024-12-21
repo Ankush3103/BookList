@@ -3,15 +3,16 @@ from pyzxing import BarCodeReader
 from PIL import Image
 import pandas as pd
 import isbnlib
+import io
 
 # Initialize the data storage
 if "book_data" not in st.session_state:
     st.session_state["book_data"] = []
 
 # Function to detect barcode using pyzxing
-def detect_barcode(image_path):
+def detect_barcode(image):
     reader = BarCodeReader()
-    result = reader.decode(image_path)
+    result = reader.decode(image)
     if result and "parsed" in result[0]:
         return result[0]["parsed"]
     return None
@@ -24,12 +25,11 @@ st.write("Use your phone to scan book barcodes and build your library list.")
 uploaded_file = st.file_uploader("Upload barcode image", type=["jpg", "png", "jpeg"])
 
 if uploaded_file:
-    # Save the uploaded file temporarily
-    with open("temp_image.jpg", "wb") as f:
-        f.write(uploaded_file.getbuffer())
+    # Open the uploaded file as an image in memory
+    image = Image.open(uploaded_file)
     
-    # Detect barcode
-    isbn_raw = detect_barcode("temp_image.jpg")
+    # Detect barcode from the image
+    isbn_raw = detect_barcode(image)
     
     if isbn_raw:
         # Decode if ISBN is in bytes
