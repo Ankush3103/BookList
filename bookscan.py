@@ -3,6 +3,7 @@ from pyzxing import BarCodeReader
 from PIL import Image
 import pandas as pd
 import isbnlib
+import pyheif
 import io
 
 # Initialize the data storage
@@ -17,16 +18,28 @@ def detect_barcode(image):
         return result[0]["parsed"]
     return None
 
+# Function to convert HEIC to JPEG
+def convert_heic_to_jpeg(heic_file):
+    heif_file = pyheif.read(heic_file)
+    image = Image.frombytes(
+        heif_file.mode, heif_file.size, heif_file.data, heif_file.stride
+    )
+    return image
+
 # Title and Instructions
 st.title("📚 Home Library Scanner")
 st.write("Use your phone to scan book barcodes and build your library list.")
 
 # File uploader to upload images
-uploaded_file = st.file_uploader("Upload barcode image", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader("Upload barcode image", type=["jpg", "png", "jpeg", "heic"])
 
 if uploaded_file:
-    # Open the uploaded file as an image in memory
-    image = Image.open(uploaded_file)
+    # If the file is in HEIC format, convert it
+    if uploaded_file.name.lower().endswith(".heic"):
+        image = convert_heic_to_jpeg(uploaded_file)
+    else:
+        # Otherwise, load the image normally
+        image = Image.open(uploaded_file)
     
     # Detect barcode from the image
     isbn_raw = detect_barcode(image)

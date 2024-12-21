@@ -3,3 +3,4 @@ pyzxing
 pillow
 isbnlib
 pandas
+pyheif
